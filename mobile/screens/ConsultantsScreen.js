@@ -4,6 +4,7 @@ import { api } from '../api/api';
 
 export default function ConsultantsScreen({ navigation, route }){
   const [list, setList] = useState([]);
+  const userId = route?.params?.userId;   // get from Login
 
   useEffect(()=>{
     (async ()=>{
@@ -25,9 +26,12 @@ export default function ConsultantsScreen({ navigation, route }){
           <View style={{ padding:12, borderBottomWidth:1 }}>
             <Text style={{ fontWeight:'bold' }}>{item.user.name}</Text>
             <Text>{item.bio}</Text>
-            <Text>Phone: ₹{item.pricePhone} • In person: ₹{item.priceInPerson}</Text>
-            <Button title="Book" onPress={() => navigation.navigate('Slots', { consultantId: item._id, userId })}
- />
+            <Button
+              title="Book"
+              onPress={() =>
+                navigation.navigate('Booking', { consultant: item, userId })
+              }
+            />
           </View>
         )}
       />

@@ -1,33 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, Button, Platform } from 'react-native';
-import { api, setAuthToken } from '../api/api';
+import { View, Text, TextInput, Button } from 'react-native';
+import { api } from '../api/api';
 
 export default function BookingScreen({ route, navigation }) {
-  const { consultant } = route.params;
-  const [type, setType] = useState('phone');
+  const { consultant, userId } = route.params;
+  const [date, setDate] = useState('2025-12-07'); // you can change
+  const [time, setTime] = useState('15:30');      // simple text input for now
 
-  const startPayment = async () => {
-    try{
-      // ensure token is set globally; in demo we assume token present
-      const res = await api.post('/bookings/create-session', { consultantId: consultant._id, type, scheduledAt: new Date() });
-      // redirect to session.url (Stripe Checkout) — in Expo you can use WebBrowser.openBrowserAsync
-      navigation.navigate('Payment', { checkoutUrl: res.data.url, bookingId: res.data.bookingId });
-    }catch(e){
-      alert(e.response?.data?.error || 'Error creating session');
+  const book = async () => {
+    try {
+      const res = await api.post('/bookings', {
+        userId,
+        consultantId: consultant._id,
+        date,
+        time
+      });
+      alert('Booking confirmed!');
+      navigation.goBack();
+    } catch (e) {
+      console.log(e.response?.data || e.message);
+      alert(e.response?.data?.error || 'Booking failed');
     }
   };
 
   return (
     <View style={{ padding: 16 }}>
-      <Text style={{ fontWeight:'bold', fontSize:18 }}>{consultant.user.name}</Text>
+      <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+        {consultant.user.name}
+      </Text>
       <Text>{consultant.bio}</Text>
-      <View style={{ marginTop: 16 }}>
-        <Button title={`Phone - ₹${consultant.pricePhone}`} onPress={()=>setType('phone')} />
-        <View style={{height:8}} />
-        <Button title={`In-person - ₹${consultant.priceInPerson}`} onPress={()=>setType('in_person')} />
-      </View>
-      <View style={{ marginTop: 20 }}>
-        <Button title="Proceed to Pay" onPress={startPayment} />
+
+      <Text style={{ marginTop: 16 }}>Date (YYYY-MM-DD)</Text>
+      <TextInput
+        value={date}
+        onChangeText={setDate}
+        style={{ borderWidth: 1, padding: 8, marginTop: 4 }}
+      />
+
+      <Text style={{ marginTop: 16 }}>Time (HH:MM)</Text>
+      <TextInput
+        value={time}
+        onChangeText={setTime}
+        style={{ borderWidth: 1, padding: 8, marginTop: 4 }}
+      />
+
+      <View style={{ marginTop: 24 }}>
+        <Button title="Confirm Booking" onPress={book} />
       </View>
     </View>
   );

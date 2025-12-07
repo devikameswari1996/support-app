@@ -7,16 +7,19 @@ export default function LoginScreen({ navigation }){
   const [password, setPassword] = useState('');
 
   const onLogin = async () => {
-    try{
-      const res = await api.post('/auth/login', { email, password });
-      const { token } = res.data;
-      setAuthToken(token);
-      // ideally save token using SecureStore or AsyncStorage
-      navigation.replace('Consultants', { token });
-    }catch(e){
-      alert(e.response?.data?.error || 'Login failed');
-    }
-  };
+  try{
+    const res = await api.post('/auth/login', { email, password });
+    const { token, user } = res.data;  // <-- get user too
+
+    setAuthToken(token);
+
+    // pass userId to next screen
+    navigation.replace('Consultants', { token, userId: user._id });
+  }catch(e){
+    alert(e.response?.data?.error || 'Login failed');
+  }
+};
+
 
   return (
     <View style={{ padding: 16 }}>
