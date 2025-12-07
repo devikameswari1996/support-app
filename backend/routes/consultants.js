@@ -1,8 +1,15 @@
-router.get('/:id/slots', async (req, res) => {
+const express = require('express');
+const router = express.Router();
+const Consultant = require('../models/Consultant');
+
+router.get('/', async (req, res) => {
   try {
-    const consultant = await Consultant.findById(req.params.id);
-    res.json(consultant.slots);
+    const list = await Consultant.find().populate('user', 'name email');
+    res.json(list);
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
+
+module.exports = router;

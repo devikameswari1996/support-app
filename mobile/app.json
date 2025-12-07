@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "f5c64405-32fa-4be7-9702-aff2c424cc37"
+      }
+    },
+    "android": {
+      "package": "com.devikameswari.supportmobile"
+    }
+  }
+}
