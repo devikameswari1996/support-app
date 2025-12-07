@@ -1,5 +1,6 @@
 import axios from 'axios';
 const API_BASE = 'https://support-app-petj.onrender.com/api';
+export default API_BASE;
 
 export const api = axios.create({
   baseURL: API_BASE,
