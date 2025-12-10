@@ -1,64 +1,70 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../models/User');
-const Consultant = require('../models/Consultant');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const Consultant = require("../models/Consultant");
 
 // REGISTER
-router.post('/register', async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: 'Email already exists' });
+    if (!name || !email || !password)
+      return res.status(400).json({ error: "All fields required" });
+
+    let existing = await User.findOne({ email });
+    if (existing)
+      return res.status(400).json({ error: "Email already exists" });
 
     const hashed = await bcrypt.hash(password, 10);
 
-    user = new User({
+    const user = await User.create({
       name,
       email,
       password: hashed,
-      isConsultant: true   // ← MAKE EVERYONE CONSULTANT
+      isConsultant: true
     });
 
-    await user.save();
-
-    // Create consultant profile automatically
-    const consultant = new Consultant({
+    await Consultant.create({
       user: user._id,
-      bio: "Available for emotional support and consultation.",
+      bio: "Available for emotional support",
       languages: ["English"],
-      available: true
+      available: true,
+      slots: []
     });
 
-    await consultant.save();
+    return res.json({ message: "Account created" });
 
-    res.json({ message: 'User created', user, consultant });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 // LOGIN
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: 'Invalid email or password' });
+    if (!user)
+      return res.status(400).json({ error: "Invalid email or password" });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ error: 'Invalid email or password' });
+    if (!match)
+      return res.status(400).json({ error: "Invalid email or password" });
 
-    const token = jwt.sign({ id: user._id }, "secret123", { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: user._id },
+      "secret123",
+      { expiresIn: "7d" }
+    );
 
-    res.json({ message: "Login successful", token, user });
+    return res.json({ message: "Login successful", token });
 
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.log(e);
     res.status(500).json({ error: "Server error" });
   }
 });

@@ -1,15 +1,17 @@
 import axios from 'axios';
-const API_BASE = 'https://support-app-petj.onrender.com/api';
+
+const API_BASE = 'https://support-app-1-kkc3.onrender.com/api';
+
 export default API_BASE;
 
 export const api = axios.create({
   baseURL: API_BASE,
-  timeout: 10000
+  timeout: 10000,
 });
 
-export const setAuthToken = token => {
-  if(token) 
+export const setAuthToken = (token) => {
+  if (token)
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  else delete 
-    api.defaults.headers.common['Authorization'];
+  else
+    delete api.defaults.headers.common['Authorization'];
 };

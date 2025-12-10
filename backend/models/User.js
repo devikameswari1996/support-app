@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },   // FIXED: Should match auth.js
+  password: { type: String, required: true },  // MUST BE password
   isConsultant: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
