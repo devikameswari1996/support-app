@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = 'https://support-app-1-kkc3.onrender.com/api';
+const API_BASE = "https://support-app-petj.onrender.com/api";
+
 
 export default API_BASE;
 

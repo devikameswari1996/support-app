@@ -1,31 +1,48 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
+
+const authRoutes = require("./routes/auth");
+const consultantRoutes = require("./routes/consultants");
+const bookingRoutes = require("./routes/bookings");
+
 const app = express();
 
-// FIX 1: Proper CORS configuration
-app.use(cors({
-  origin: ["http://localhost:19006", "http://localhost:19000", "*"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// 1) Correct CORS middleware
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-// FIX 2: Add Access-Control-Allow-Origin for ALL responses
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    return res.status(204).json({});
-  }
-  next();
-});
+// 2) Handle ALL preflight requests correctly
+app.options("*", cors());
 
+// 3) JSON body parser
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/consultants", require("./routes/consultants"));
+// Root test route
+app.get("/", (req, res) => {
+  res.send("Support App backend is running");
+});
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/consultants", consultantRoutes);
+app.use("/api/bookings", bookingRoutes);
+
+// 4) Connect to MongoDB and start server
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Mongo connected");
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => console.error("MongoDB Error:", err));
